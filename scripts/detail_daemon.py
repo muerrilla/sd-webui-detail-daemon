@@ -44,7 +44,7 @@ class Script(scripts.Script):
                             gr_fade = gr.Slider(minimum=0.0, maximum=1.0, step=.05, value=0.0, label="Fade") 
                     with gr.Column(scale=1, min_width=275): 
                         gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=0)  
-                        gr_help = gr.Markdown("## [Ⓗ Help](https://github.com/muerrilla/stable-diffusion-detail-daemon)", elem_id="detail-daemon-help")
+                        gr_help = gr.Markdown("## [Ⓗ Help](https://github.com/muerrilla/sd-webui-detail-daemon)", elem_id="detail-daemon-help")
                                     
         vis_args = [gr_enabled, gr_start, gr_end, gr_bias, gr_amount, gr_exponent, gr_start_offset, gr_end_offset, gr_fade, gr_smooth]
         for vis_arg in vis_args:
