@@ -30,8 +30,8 @@ class Script(scripts.Script):
                     gr_bias = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.5, label="Bias ")                                                                                                                          
                 with gr.Column(scale=1, min_width=275):  
                     preview = self.visualize(False, 0, 1, 0.5, 0.5, 1, 0, 0, 0, True)                                 
-                    z_vis = gr.Plot(value=preview, elem_id='detail-daemon-vis', show_label=False) 
-            with gr.Accordion("More Knobs:", elem_id="detail-daemon-more-accordion", open=False): 
+                    z_vis = gr.Plot(value=preview, elem_classes=['detail-daemon-vis'], show_label=False)
+            with gr.Accordion("More Knobs:", elem_classes=['detail-daemon-more-accordion'], open=False):
                 with gr.Row():
                     with gr.Column(scale=2):   
                         with gr.Row():                                              
@@ -41,8 +41,8 @@ class Script(scripts.Script):
                             gr_exponent = gr.Slider(minimum=0.0, maximum=10.0, step=.05, value=1.0, label="Exponent", min_width=0) 
                             gr_fade = gr.Slider(minimum=0.0, maximum=1.0, step=.05, value=0.0, label="Fade") 
                     with gr.Column(scale=1, min_width=275): 
-                        gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=0)  
-                        gr_help = gr.Markdown("## [Ⓗ Help](https://github.com/muerrilla/sd-webui-detail-daemon)", elem_id="detail-daemon-help")
+                        gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=0, elem_classes=['detail-daemon-smooth'])
+                        gr.Markdown("## [Ⓗ Help](https://github.com/muerrilla/sd-webui-detail-daemon)", elem_classes=['detail-daemon-help'])
                                     
         vis_args = [gr_enabled, gr_start, gr_end, gr_bias, gr_amount, gr_exponent, gr_start_offset, gr_end_offset, gr_fade, gr_smooth]
         for vis_arg in vis_args:
