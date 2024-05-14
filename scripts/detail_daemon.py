@@ -12,7 +12,7 @@ from modules.script_callbacks import on_cfg_denoiser, remove_current_script_call
 from modules.ui_components import InputAccordion
 
 
-def pares_infotext(infotext, params):
+def parse_infotext(infotext, params):
     try:
         d = {}
         for s in params['Detail Daemon'].split(','):
@@ -23,7 +23,7 @@ def pares_infotext(infotext, params):
         pass
 
 
-on_infotext_pasted(pares_infotext)
+on_infotext_pasted(parse_infotext)
 
 
 class Script(scripts.Script):
@@ -38,19 +38,19 @@ class Script(scripts.Script):
         with InputAccordion(False, label="Detail Daemon", elem_id=self.elem_id('detail-daemon')) as gr_enabled:
             with gr.Row():
                 with gr.Column(scale=2):                    
-                    gr_amount = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.50, label="Amount ")
-                    gr_start = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.0, label="Start ")
-                    gr_end = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=1.0, label="End ") 
+                    gr_amount = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.10, label="Amount ")
+                    gr_start = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.35, label="Start ")
+                    gr_end = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.75, label="End ") 
                     gr_bias = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.5, label="Bias ")                                                                                                                          
                 with gr.Column(scale=1, min_width=275):  
-                    preview = self.visualize(False, 0, 1, 0.5, 0.5, 1, 0, 0, 0, True)                                 
+                    preview = self.visualize(False, 0.35, .75, 0.1, 0.5, 1, 0, -0.05, 0, True)                                 
                     z_vis = gr.Plot(value=preview, elem_classes=['detail-daemon-vis'], show_label=False)
             with gr.Accordion("More Knobs:", elem_classes=['detail-daemon-more-accordion'], open=False):
                 with gr.Row():
                     with gr.Column(scale=2):   
                         with gr.Row():                                              
                             gr_start_offset = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.00, label="Start Offset", min_width=0) 
-                            gr_end_offset = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.00, label="End Offset", min_width=0) 
+                            gr_end_offset = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=-0.05, label="End Offset", min_width=0) 
                         with gr.Row():
                             gr_exponent = gr.Slider(minimum=0.0, maximum=10.0, step=.05, value=1.0, label="Exponent", min_width=0) 
                             gr_fade = gr.Slider(minimum=0.0, maximum=1.0, step=.05, value=0.0, label="Fade") 
