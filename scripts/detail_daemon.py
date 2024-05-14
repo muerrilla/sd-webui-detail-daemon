@@ -1,8 +1,6 @@
 import os
 import gradio as gr
 import numpy as np
-import torch
-import math
 from tqdm import tqdm
 
 import matplotlib
