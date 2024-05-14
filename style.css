@@ -1,30 +1,16 @@
-#detail-daemon-more-accordion {
+.detail-daemon-more-accordion {
 	box-shadow: 0px 1px 6px 2px #00000024 !important;
-    margin-top: 1em;
+    margin-top: 1em !important;
 }
 
-#detail-daemon-more-accordion input[type="checkbox"]{
-	margin-left: 3em;
+.detail-daemon-smooth {
+	margin-left: 3em !important;
 }
 
-#detail-daemon-vis {
-	margin: auto;
+.detail-daemon-vis {
+	margin: auto !important;
 }
 
-#detail-daemon-enabled {
-	margin-bottom: 0.75em;
-}
-
-#detail-daemon-help {
+.detail-daemon-help {
 	margin: auto 1.5em !important;
-}
-
-#detail-daemon.dd-inactive  > div > span {
-	color: unset;
-}
-
-#detail-daemon.dd-active > div > span {
-	/*color: #79c700;*/
-	/*color: #ffba00;*/
-	color: #ff5500;
 }

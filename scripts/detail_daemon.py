@@ -1,8 +1,6 @@
 import os
 import gradio as gr
 import numpy as np
-import torch
-import math
 from tqdm import tqdm
 
 import matplotlib
@@ -10,7 +8,22 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import modules.scripts as scripts
-from modules.script_callbacks import on_cfg_denoiser, remove_current_script_callbacks
+from modules.script_callbacks import on_cfg_denoiser, remove_current_script_callbacks, on_infotext_pasted
+from modules.ui_components import InputAccordion
+
+
+def pares_infotext(infotext, params):
+    try:
+        d = {}
+        for s in params['Detail Daemon'].split(','):
+            k, _, v = s.partition(':')
+            d[k.strip()] = v.strip()
+        params['Detail Daemon'] = d
+    except Exception:
+        pass
+
+
+on_infotext_pasted(pares_infotext)
 
 
 class Script(scripts.Script):
@@ -22,9 +35,8 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def ui(self, is_img2img):
-        with gr.Accordion("Detail Daemon", elem_id="detail-daemon", open=True): 
-            gr_enabled = gr.Checkbox(label='Enable', elem_id="detail-daemon-enabled", value=False, min_width=0)
-            with gr.Row():                                                         
+        with InputAccordion(False, label="Detail Daemon", elem_id=self.elem_id('detail-daemon')) as gr_enabled:
+            with gr.Row():
                 with gr.Column(scale=2):                    
                     gr_amount = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.50, label="Amount ")
                     gr_start = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.0, label="Start ")
@@ -32,8 +44,8 @@ class Script(scripts.Script):
                     gr_bias = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.5, label="Bias ")                                                                                                                          
                 with gr.Column(scale=1, min_width=275):  
                     preview = self.visualize(False, 0, 1, 0.5, 0.5, 1, 0, 0, 0, True)                                 
-                    z_vis = gr.Plot(value=preview, elem_id='detail-daemon-vis', show_label=False) 
-            with gr.Accordion("More Knobs:", elem_id="detail-daemon-more-accordion", open=False): 
+                    z_vis = gr.Plot(value=preview, elem_classes=['detail-daemon-vis'], show_label=False)
+            with gr.Accordion("More Knobs:", elem_classes=['detail-daemon-more-accordion'], open=False):
                 with gr.Row():
                     with gr.Column(scale=2):   
                         with gr.Row():                                              
@@ -43,44 +55,33 @@ class Script(scripts.Script):
                             gr_exponent = gr.Slider(minimum=0.0, maximum=10.0, step=.05, value=1.0, label="Exponent", min_width=0) 
                             gr_fade = gr.Slider(minimum=0.0, maximum=1.0, step=.05, value=0.0, label="Fade") 
                     with gr.Column(scale=1, min_width=275): 
-                        gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=0)  
-                        gr_help = gr.Markdown("## [Ⓗ Help](https://github.com/muerrilla/sd-webui-detail-daemon)", elem_id="detail-daemon-help")
+                        gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=0, elem_classes=['detail-daemon-smooth'])
+                        gr.Markdown("## [Ⓗ Help](https://github.com/muerrilla/sd-webui-detail-daemon)", elem_classes=['detail-daemon-help'])
                                     
         vis_args = [gr_enabled, gr_start, gr_end, gr_bias, gr_amount, gr_exponent, gr_start_offset, gr_end_offset, gr_fade, gr_smooth]
         for vis_arg in vis_args:
-            if isinstance(vis_arg, gr.components.Slider): vis_arg.release(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
-            else: vis_arg.change(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis]) 
+            if isinstance(vis_arg, gr.components.Slider):
+                vis_arg.release(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
+            else:
+                vis_arg.change(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
 
-        js="""
-            function toggleClass(x) {
-                var element = document.getElementById('detail-daemon');
-                if (x) {
-                    element.classList.add('dd-active');
-                    element.classList.remove('dd-inactive');
-                } else {
-                    element.classList.add('dd-inactive');
-                    element.classList.remove('dd-active');
-                }
-        }
-        """
-        gr_enabled.change(None, show_progress=False, inputs=gr_enabled, _js=js)
+        def extract_infotext(d: dict, key, old_key):
+            if 'Detail Daemon' in d:
+                return d['Detail Daemon'].get(key)
+            return d.get(old_key)
 
         self.infotext_fields = [
-            (gr_enabled, lambda d: gr.Checkbox.update(value='DD_enabled' in d)),
-            (gr_amount, 'DD_amount'),
-            (gr_start, 'DD_start'),
-            (gr_end, 'DD_end'),
-            (gr_bias, 'DD_bias'),
-            (gr_exponent, 'DD_exponent'),
-            (gr_start_offset, 'DD_start_offset'),
-            (gr_end_offset, 'DD_end_offset'),
-            (gr_fade, 'DD_fade'),
-            (gr_smooth, 'DD_smooth'),
+            (gr_enabled, lambda d: True if ('Detail Daemon' in d or 'DD_enabled' in d) else False),
+            (gr_amount, lambda d: extract_infotext(d, 'amount', 'DD_amount')),
+            (gr_start, lambda d: extract_infotext(d, 'st', 'DD_start')),
+            (gr_end, lambda d: extract_infotext(d, 'ed', 'DD_end')),
+            (gr_bias, lambda d: extract_infotext(d, 'bias', 'DD_bias')),
+            (gr_exponent, lambda d: extract_infotext(d, 'exp', 'DD_exponent')),
+            (gr_start_offset, lambda d: extract_infotext(d, 'st_offset', 'DD_start_offset')),
+            (gr_end_offset, lambda d: extract_infotext(d, 'ed_offset', 'DD_end_offset')),
+            (gr_fade, lambda d: extract_infotext(d, 'fade', 'DD_fade')),
+            (gr_smooth, lambda d: extract_infotext(d, 'smooth', 'DD_smooth')),
         ]
-        self.paste_field_names = []
-        for _, field_name in self.infotext_fields:
-            self.paste_field_names.append(field_name)
-
         return [gr_enabled, gr_start, gr_end, gr_bias, gr_amount, gr_exponent, gr_start_offset, gr_end_offset, gr_fade, gr_smooth]
     
     def process(self, p, enabled, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth):    
@@ -102,19 +103,8 @@ class Script(scripts.Script):
             self.schedule = self.make_schedule(p.steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             on_cfg_denoiser(self.denoiser_callback)  
             tqdm.write('\033[32mINFO:\033[0m Detail Daemon is enabled')
+            p.extra_generation_params['Detail Daemon'] = f'amount:{amount},st:{start},ed:{end},bias:{bias},exp:{exponent},st_offset:{start_offset},ed_offset:{end_offset},fade:{fade},smooth:{1 if smooth else 0}'
 
-            p.extra_generation_params.update({
-                "DD_enabled" : enabled,
-                "DD_amount" : amount,
-                "DD_start" : start,
-                "DD_end" : end,
-                "DD_bias" : bias,
-                "DD_exponent" : exponent,
-                "DD_start_offset" : start_offset,
-                "DD_end_offset" : end_offset,
-                "DD_fade" : fade, 
-                "DD_smooth" : smooth,
-            })
         else:
             if hasattr(self, 'callback_added'):
                 remove_current_script_callbacks()
