@@ -8,8 +8,22 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import modules.scripts as scripts
-from modules.script_callbacks import on_cfg_denoiser, remove_current_script_callbacks
+from modules.script_callbacks import on_cfg_denoiser, remove_current_script_callbacks, on_infotext_pasted
 from modules.ui_components import InputAccordion
+
+
+def pares_infotext(infotext, params):
+    try:
+        d = {}
+        for s in params['Detail Daemon'].split(','):
+            k, _, v = s.partition(':')
+            d[k.strip()] = v.strip()
+        params['Detail Daemon'] = d
+    except Exception:
+        pass
+
+
+on_infotext_pasted(pares_infotext)
 
 
 class Script(scripts.Script):
@@ -51,22 +65,23 @@ class Script(scripts.Script):
             else:
                 vis_arg.change(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
 
-        self.infotext_fields = [
-            (gr_enabled, lambda d: gr.Checkbox.update(value='DD_enabled' in d)),
-            (gr_amount, 'DD_amount'),
-            (gr_start, 'DD_start'),
-            (gr_end, 'DD_end'),
-            (gr_bias, 'DD_bias'),
-            (gr_exponent, 'DD_exponent'),
-            (gr_start_offset, 'DD_start_offset'),
-            (gr_end_offset, 'DD_end_offset'),
-            (gr_fade, 'DD_fade'),
-            (gr_smooth, 'DD_smooth'),
-        ]
-        self.paste_field_names = []
-        for _, field_name in self.infotext_fields:
-            self.paste_field_names.append(field_name)
+        def extract_infotext(d: dict, key, old_key):
+            if 'Detail Daemon' in d:
+                return d['Detail Daemon'].get(key)
+            return d.get(old_key)
 
+        self.infotext_fields = [
+            (gr_enabled, lambda d: True if ('Detail Daemon' in d or 'DD_enabled' in d) else False),
+            (gr_amount, lambda d: extract_infotext(d, 'amount', 'DD_amount')),
+            (gr_start, lambda d: extract_infotext(d, 'st', 'DD_start')),
+            (gr_end, lambda d: extract_infotext(d, 'ed', 'DD_end')),
+            (gr_bias, lambda d: extract_infotext(d, 'bias', 'DD_bias')),
+            (gr_exponent, lambda d: extract_infotext(d, 'exp', 'DD_exponent')),
+            (gr_start_offset, lambda d: extract_infotext(d, 'st_offset', 'DD_start_offset')),
+            (gr_end_offset, lambda d: extract_infotext(d, 'ed_offset', 'DD_end_offset')),
+            (gr_fade, lambda d: extract_infotext(d, 'fade', 'DD_fade')),
+            (gr_smooth, lambda d: extract_infotext(d, 'smooth', 'DD_smooth')),
+        ]
         return [gr_enabled, gr_start, gr_end, gr_bias, gr_amount, gr_exponent, gr_start_offset, gr_end_offset, gr_fade, gr_smooth]
     
     def process(self, p, enabled, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth):    
@@ -88,19 +103,8 @@ class Script(scripts.Script):
             self.schedule = self.make_schedule(p.steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             on_cfg_denoiser(self.denoiser_callback)  
             tqdm.write('\033[32mINFO:\033[0m Detail Daemon is enabled')
+            p.extra_generation_params['Detail Daemon'] = f'amount:{amount},st:{start},ed:{end},bias:{bias},exp:{exponent},st_offset:{start_offset},ed_offset:{end_offset},fade:{fade},smooth:{1 if smooth else 0}'
 
-            p.extra_generation_params.update({
-                "DD_enabled" : enabled,
-                "DD_amount" : amount,
-                "DD_start" : start,
-                "DD_end" : end,
-                "DD_bias" : bias,
-                "DD_exponent" : exponent,
-                "DD_start_offset" : start_offset,
-                "DD_end_offset" : end_offset,
-                "DD_fade" : fade, 
-                "DD_smooth" : smooth,
-            })
         else:
             if hasattr(self, 'callback_added'):
                 remove_current_script_callbacks()
