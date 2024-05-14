@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 import modules.scripts as scripts
 from modules.script_callbacks import on_cfg_denoiser, remove_current_script_callbacks
+from modules.ui_components import InputAccordion
 
 
 class Script(scripts.Script):
@@ -20,9 +21,8 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def ui(self, is_img2img):
-        with gr.Accordion("Detail Daemon", elem_id="detail-daemon", open=True): 
-            gr_enabled = gr.Checkbox(label='Enable', elem_id="detail-daemon-enabled", value=False, min_width=0)
-            with gr.Row():                                                         
+        with InputAccordion(False, label="Detail Daemon", elem_id=self.elem_id('detail-daemon')) as gr_enabled:
+            with gr.Row():
                 with gr.Column(scale=2):                    
                     gr_amount = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.50, label="Amount ")
                     gr_start = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.0, label="Start ")
@@ -46,22 +46,10 @@ class Script(scripts.Script):
                                     
         vis_args = [gr_enabled, gr_start, gr_end, gr_bias, gr_amount, gr_exponent, gr_start_offset, gr_end_offset, gr_fade, gr_smooth]
         for vis_arg in vis_args:
-            if isinstance(vis_arg, gr.components.Slider): vis_arg.release(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
-            else: vis_arg.change(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis]) 
-
-        js="""
-            function toggleClass(x) {
-                var element = document.getElementById('detail-daemon');
-                if (x) {
-                    element.classList.add('dd-active');
-                    element.classList.remove('dd-inactive');
-                } else {
-                    element.classList.add('dd-inactive');
-                    element.classList.remove('dd-active');
-                }
-        }
-        """
-        gr_enabled.change(None, show_progress=False, inputs=gr_enabled, _js=js)
+            if isinstance(vis_arg, gr.components.Slider):
+                vis_arg.release(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
+            else:
+                vis_arg.change(fn=self.visualize, show_progress=False, inputs=vis_args, outputs=[z_vis])
 
         self.infotext_fields = [
             (gr_enabled, lambda d: gr.Checkbox.update(value='DD_enabled' in d)),
