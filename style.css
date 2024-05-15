@@ -3,6 +3,11 @@
     margin-top: 1em !important;
 }
 
+.detail-daemon-mode {
+	margin-left: 3em !important;
+	width: 75% !important;
+}
+
 .detail-daemon-smooth {
 	margin-left: 3em !important;
 }
