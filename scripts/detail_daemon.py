@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import modules.scripts as scripts
-from modules.script_callbacks import on_cfg_denoiser, remove_current_script_callbacks, on_infotext_pasted
+from modules.script_callbacks import on_cfg_denoiser, remove_callbacks_for_function, on_infotext_pasted
 from modules.ui_components import InputAccordion
 
 
@@ -107,13 +107,13 @@ class Script(scripts.Script):
 
         else:
             if hasattr(self, 'callback_added'):
-                remove_current_script_callbacks()
+                remove_callbacks_for_function(self.denoiser_callback)
                 delattr(self, 'callback_added')
                 # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')  
 
     def postprocess(self, p, processed, *args):
         if hasattr(self, 'callback_added'):
-            remove_current_script_callbacks()            
+            remove_callbacks_for_function(self.denoiser_callback)
             delattr(self, 'callback_added') 
             # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')
        
