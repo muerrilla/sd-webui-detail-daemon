@@ -58,7 +58,7 @@ class Script(scripts.Script):
                         with gr.Row():
                             gr_amount = gr.Number(value=0.10, precision=4, step=.01, label="Amount", min_width=60)  
                             gr_start_offset = gr.Number(value=0.0, precision=4, step=.01, label="Start Offset", min_width=60)  
-                            gr_end_offset = gr.Number(value=0.0, precision=4, step=.01, label="End Offset", min_width=60) 
+                            gr_end_offset = gr.Number(value=-0.05, precision=4, step=.01, label="End Offset", min_width=60) 
                     with gr.Column(scale=1, min_width=275): 
                         gr_mode = gr.Dropdown(["both", "cond", "uncond"], value="uncond", label="Mode", show_label=True, min_width=60, elem_classes=['detail-daemon-mode']) 
                         gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=60, elem_classes=['detail-daemon-smooth'])
@@ -115,14 +115,17 @@ class Script(scripts.Script):
         smooth = getattr(p, "DD_smooth", smooth)
 
         if enabled :
-            self.callback_added = True  
-            self.counter = 0
+            if p.sampler_name == "DPM adaptive" :
+                tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work with {p.sampler_name}')
+                return
+            actual_steps = (p.steps * 2 - 1) if p.sampler_name in ['DPM++ SDE', 'DPM++ 2S a', 'Heun', 'DPM2', 'DPM2 a', 'Restart'] else p.steps  
+            # Restart can be handled better, later maybe            
+            self.schedule = self.make_schedule(actual_steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             self.mode = mode
-            self.schedule = self.make_schedule(p.steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
-            on_cfg_denoiser(self.denoiser_callback)  
-            tqdm.write('\033[32mINFO:\033[0m Detail Daemon is enabled')
+            on_cfg_denoiser(self.denoiser_callback)              
+            self.callback_added = True 
             p.extra_generation_params['Detail Daemon'] = f'mode:{mode},amount:{amount},st:{start},ed:{end},bias:{bias},exp:{exponent},st_offset:{start_offset},ed_offset:{end_offset},fade:{fade},smooth:{1 if smooth else 0}'
-
+            tqdm.write('\033[32mINFO:\033[0m Detail Daemon is enabled')
         else:
             if hasattr(self, 'callback_added'):
                 remove_callbacks_for_function(self.denoiser_callback)
@@ -136,18 +139,14 @@ class Script(scripts.Script):
             # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')
        
     def denoiser_callback(self, params): 
-        if params.sampling_step == 0 and self.counter != 1:
-            self.counter = 0
-        multiplier = 1 - self.schedule[self.counter]
-        # if multiplier != 1.0 :
-            # tqdm.write(f"\033[32mINFO:\033[0m Bumping sigma {params.sigma} by {multiplier} at step {params.sampling_step}, counter {self.counter}")
+        idx = params.denoiser.step
+        multiplier = 1 - self.schedule[idx]
         if self.mode == "cond" :
-            params.sigma[0] *= 1 - self.schedule[self.counter] * .1
+            params.sigma[0] *= 1 - self.schedule[idx] * .1
         elif self.mode == "uncond" :
-            params.sigma[1] *= 1 - self.schedule[self.counter] * -.1
+            params.sigma[1] *= 1 - self.schedule[idx] * -.1
         else :
             params.sigma *= multiplier
-        self.counter += 1
 
     def make_schedule(self, steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth):
         start = min(start, end)
