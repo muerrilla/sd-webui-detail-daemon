@@ -122,6 +122,7 @@ class Script(scripts.Script):
             # Restart can be handled better, later maybe            
             self.schedule = self.make_schedule(actual_steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             self.mode = mode
+            self.is_hires = False
             on_cfg_denoiser(self.denoiser_callback)              
             self.callback_added = True 
             p.extra_generation_params['Detail Daemon'] = f'mode:{mode},amount:{amount},st:{start},ed:{end},bias:{bias},exp:{exponent},st_offset:{start_offset},ed_offset:{end_offset},fade:{fade},smooth:{1 if smooth else 0}'
@@ -137,8 +138,14 @@ class Script(scripts.Script):
             remove_callbacks_for_function(self.denoiser_callback)
             delattr(self, 'callback_added') 
             # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')
-       
+
+    def before_hr(self, p, *args):
+        self.is_hires = True
+        tqdm.write(f'INFO: Detail Daemon does not work during Hires Fix')
+        
     def denoiser_callback(self, params): 
+        if self.is_hires :
+            return
         idx = params.denoiser.step
         multiplier = 1 - self.schedule[idx]
         if self.mode == "cond" :
