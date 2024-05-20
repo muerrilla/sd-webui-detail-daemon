@@ -1,7 +1,7 @@
 # Detail Daemon
 This is an extension for [Stable Diffusion Web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui), which allows users to adjust the amount of detail/smoothness in an image, during the sampling steps. 
 
-It uses no LORAs, ControlNets etc., and as a result its performance is not biased towards any certain style and it introduces no new stylistic or semantic features of its own into the generation. This also means that it can work with any model and on any type of image.
+It uses no LORAs, ControlNets, etc., and as a result its performance is not biased towards any certain style and it introduces no new stylistic or semantic features of its own into the generation. This also means that it can work with any model and on any type of image.
 
 <sub>*Model: SSD-1B*<br></sub>
 ![a close up portrait of a cyberpunk knight-1Lv-0](https://github.com/muerrilla/sd-webui-detail-daemon/assets/48160881/561c33d9-9a5d-4cfc-bee8-de9126b280c1)
@@ -72,11 +72,9 @@ For now you gotta play around with the sliders and figure out how the shape of t
 
 
 ## Notes:
-- Doesn't work with all samplers at the moment (e.g. DPM++ SDE Karras), but works with the main good ones. Will fix this.
 - I haven't tested it with composable diffusion yet. Don't be surprised if it acts weird.
 - It's probably impossible to use or very hard to control with few-step models (Turbo, Lightning, etc.).
-- It was built and tested on SD Webui 1.8.0, so hope it works fine on the newer releases.
-- Yes, it works with forge.
-- No, it's not the same as AlignYourSteps, FreeU, etc.
+- It works with forge.
+- It's not the same as AlignYourSteps, FreeU, etc.
 - It is similar (in what it sets out to do, not in how it does it) to the [ReSharpen Extension](https://github.com/Haoming02/sd-webui-resharpen) by Haoming.
 - This is WIP and subject to change.
