@@ -38,19 +38,19 @@ class Script(scripts.Script):
         with InputAccordion(False, label="Detail Daemon", elem_id=self.elem_id('detail-daemon')) as gr_enabled:
             with gr.Row():
                 with gr.Column(scale=2):                    
-                    gr_amount_slider = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.10, label="Amount")
-                    gr_start = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.35, label="Start")
-                    gr_end = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.75, label="End") 
+                    gr_amount_slider = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.10, label="Detail Amount")
+                    gr_start = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.2, label="Start")
+                    gr_end = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.8, label="End") 
                     gr_bias = gr.Slider(minimum=0.0, maximum=1.0, step=.01, value=0.5, label="Bias")                                                                                                                          
                 with gr.Column(scale=1, min_width=275):  
-                    preview = self.visualize(False, 0.35, .75, 0.5, 0.1, 1, 0, -0.05, 0, True)                                 
+                    preview = self.visualize(False, 0.2, 0.8, 0.5, 0.1, 1, 0, 0, 0, True)                                 
                     gr_vis = gr.Plot(value=preview, elem_classes=['detail-daemon-vis'], show_label=False)
             with gr.Accordion("More Knobs:", elem_classes=['detail-daemon-more-accordion'], open=False):
                 with gr.Row():
                     with gr.Column(scale=2):   
                         with gr.Row():                                              
                             gr_start_offset_slider = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.00, label="Start Offset", min_width=60) 
-                            gr_end_offset_slider = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=-0.05, label="End Offset", min_width=60) 
+                            gr_end_offset_slider = gr.Slider(minimum=-1.00, maximum=1.00, step=.01, value=0.00, label="End Offset", min_width=60) 
                         with gr.Row():
                             gr_exponent = gr.Slider(minimum=0.0, maximum=10.0, step=.05, value=1.0, label="Exponent", min_width=60) 
                             gr_fade = gr.Slider(minimum=0.0, maximum=1.0, step=.05, value=0.0, label="Fade", min_width=60) 
@@ -58,7 +58,7 @@ class Script(scripts.Script):
                         with gr.Row():
                             gr_amount = gr.Number(value=0.10, precision=4, step=.01, label="Amount", min_width=60)  
                             gr_start_offset = gr.Number(value=0.0, precision=4, step=.01, label="Start Offset", min_width=60)  
-                            gr_end_offset = gr.Number(value=-0.05, precision=4, step=.01, label="End Offset", min_width=60) 
+                            gr_end_offset = gr.Number(value=0.0, precision=4, step=.01, label="End Offset", min_width=60) 
                     with gr.Column(scale=1, min_width=275): 
                         gr_mode = gr.Dropdown(["both", "cond", "uncond"], value="uncond", label="Mode", show_label=True, min_width=60, elem_classes=['detail-daemon-mode']) 
                         gr_smooth = gr.Checkbox(label="Smooth", value=True, min_width=60, elem_classes=['detail-daemon-smooth'])
@@ -118,11 +118,13 @@ class Script(scripts.Script):
             if p.sampler_name == "DPM adaptive" :
                 tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work with {p.sampler_name}')
                 return
-            actual_steps = (p.steps * 2 - 1) if p.sampler_name in ['DPM++ SDE', 'DPM++ 2S a', 'Heun', 'DPM2', 'DPM2 a', 'Restart'] else p.steps  
-            # Restart can be handled better, later maybe            
+            # Restart can be handled better, later maybe    
+            
+            actual_steps = (p.steps * 2 - 1) if p.sampler_name in ['DPM++ SDE', 'DPM++ 2S a', 'Heun', 'DPM2', 'DPM2 a', 'Restart'] else p.steps        
             self.schedule = self.make_schedule(actual_steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             self.mode = mode
             self.is_hires = False
+            self.cfg_scale = p.cfg_scale
             on_cfg_denoiser(self.denoiser_callback)              
             self.callback_added = True 
             p.extra_generation_params['Detail Daemon'] = f'mode:{mode},amount:{amount},st:{start},ed:{end},bias:{bias},exp:{exponent},st_offset:{start_offset},ed_offset:{end_offset},fade:{fade},smooth:{1 if smooth else 0}'
@@ -141,7 +143,9 @@ class Script(scripts.Script):
 
     def before_hr(self, p, *args):
         self.is_hires = True
-        tqdm.write(f'INFO: Detail Daemon does not work during Hires Fix')
+        enabled = args[0]
+        if enabled:
+            tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work during Hires Fix')
         
     def denoiser_callback(self, params): 
         if self.is_hires :
@@ -153,7 +157,7 @@ class Script(scripts.Script):
         elif self.mode == "uncond" :
             params.sigma[1] *= 1 - self.schedule[idx] * -.1
         else :
-            params.sigma *= multiplier
+            params.sigma *= 1 - self.schedule[idx] * .1 * self.cfg_scale
 
     def make_schedule(self, steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth):
         start = min(start, end)
