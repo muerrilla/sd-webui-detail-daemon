@@ -225,7 +225,7 @@ class Script(scripts.Script):
             plt.close()
             self.last_vis = fig
             return fig
-        except:
+        except Exception:
             if self.last_vis is not None:
                 return self.last_vis
             return   
