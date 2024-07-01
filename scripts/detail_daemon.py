@@ -114,8 +114,8 @@ class Script(scripts.Script):
         fade = getattr(p, "DD_fade", fade)
         smooth = getattr(p, "DD_smooth", smooth)
 
-        if enabled :
-            if p.sampler_name == "DPM adaptive" :
+        if enabled:
+            if p.sampler_name == "DPM adaptive":
                 tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work with {p.sampler_name}')
                 return
             # Restart can be handled better, later maybe    
@@ -150,15 +150,15 @@ class Script(scripts.Script):
             tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work during Hires Fix')
         
     def denoiser_callback(self, params): 
-        if self.is_hires :
+        if self.is_hires:
             return
         idx = params.denoiser.step
         multiplier = 1 - self.schedule[idx]
-        if self.mode == "cond" :
+        if self.mode == "cond":
             params.sigma[0] *= 1 - self.schedule[idx] * .1
-        elif self.mode == "uncond" :
+        elif self.mode == "uncond":
             params.sigma[1] *= 1 - self.schedule[idx] * -.1
-        else :
+        else:
             params.sigma *= 1 - self.schedule[idx] * .1 * self.cfg_scale
 
     def make_schedule(self, steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth):
@@ -198,7 +198,8 @@ class Script(scripts.Script):
             values = self.make_schedule(steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             mean = sum(values)/steps
             peak = np.clip(max(abs(values)), -1, 1)
-            if start > end : start = end
+            if start > end:
+                start = end
             mid = start + bias * (end - start)
             opacity = .1 + (1 - fade) * 0.7
             plot_color = (0.5, 0.5, 0.5, opacity) if not enabled else ((1 - peak)**2, 1, 0, opacity) if mean >= 0 else (1, (1 - peak)**2, 0, opacity) 
@@ -212,22 +213,23 @@ class Script(scripts.Script):
                 "ytick.labelcolor": plot_color,
                 "ytick.color": plot_color,
             })            
-            fig, ax = plt.subplots(figsize=(2.15, 2.00),layout="constrained")
+            fig, ax = plt.subplots(figsize=(2.15, 2.00), layout="constrained")
             ax.plot(range(steps), values, color=plot_color)
             ax.axhline(y=0, color=plot_color, linestyle='dotted')
             ax.axvline(x=mid * (steps - 1), color=plot_color, linestyle='dotted')
             ax.tick_params(right=False, color=plot_color)
             ax.set_xticks([i * (steps - 1) / 10 for i in range(10)][1:])
             ax.set_xticklabels([])
-            ax.set_ylim([-1,1])
-            ax.set_xlim([0,steps-1])
+            ax.set_ylim([-1, 1])
+            ax.set_xlim([0, steps-1])
             plt.close()
             self.last_vis = fig
-            return fig   
+            return fig
         except:
-            if self.last_vis is not None :
+            if self.last_vis is not None:
                 return self.last_vis
             return   
+
 
 def xyz_support():
     for scriptDataTuple in scripts.scripts_data:
@@ -236,7 +238,7 @@ def xyz_support():
 
             def confirm_mode(p, xs):
                 for x in xs:
-                    if x not in ['both','cond', 'uncond']:
+                    if x not in ['both', 'cond', 'uncond']:
                         raise RuntimeError(f'Invalid Detail Daemon Mode: {x}')
             mode = xy_grid.AxisOption(
                 '[Detail Daemon] Mode',
@@ -295,6 +297,8 @@ def xyz_support():
                 end_offset,
                 fade,
             ])
+
+
 try:
     xyz_support()
 except Exception as e:
