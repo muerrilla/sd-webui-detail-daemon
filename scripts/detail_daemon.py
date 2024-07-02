@@ -157,7 +157,7 @@ class Script(scripts.Script):
         if self.mode == "cond":
             params.sigma[0] *= 1 - self.schedule[idx] * .1
         elif self.mode == "uncond":
-            params.sigma[1] *= 1 - self.schedule[idx] * -.1
+            params.sigma[1 if params.sigma.size(0) > 1 else 0] *= 1 - self.schedule[idx] * -.1
         else:
             params.sigma *= 1 - self.schedule[idx] * .1 * self.cfg_scale
 
