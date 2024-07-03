@@ -116,7 +116,7 @@ class Script(scripts.Script):
 
         if enabled:
             if p.sampler_name == "DPM adaptive":
-                tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work with {p.sampler_name}')
+                tqdm.write(f'\033[33mWARNING:\033[0m Detail Daemon does not work with {p.sampler_name}')
                 return
             # Restart can be handled better, later maybe    
             
@@ -156,9 +156,9 @@ class Script(scripts.Script):
         multiplier = self.schedule[idx] * .1
         mode = self.mode 
         if params.sigma.size(0) == 1:
-            mode = "forge"
+            mode = "both"
             if idx == 0:
-                tqdm.write(f'\033[33mINFO:\033[0m Forge does not support `cond` and `uncond` modes')
+                tqdm.write(f'\033[33mWARNING:\033[0m Forge does not support `cond` and `uncond` modes, using `both` instead')
         if mode == "cond":
             params.sigma[0] *= 1 - multiplier
         elif mode == "uncond":
