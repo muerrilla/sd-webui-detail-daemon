@@ -152,15 +152,20 @@ class Script(scripts.Script):
     def denoiser_callback(self, params): 
         if self.is_hires:
             return
-        idx = params.denoiser.step
-        multiplier = 1 - self.schedule[idx]
-        if self.mode == "cond":
-            params.sigma[0] *= 1 - self.schedule[idx] * .1
-        elif self.mode == "uncond":
-            params.sigma[1] *= 1 - self.schedule[idx] * -.1
+        idx = params.denoiser.step   
+        multiplier = self.schedule[idx] * .1
+        mode = self.mode 
+        if params.sigma.size(0) == 1:
+            mode = "forge"
+            if idx == 0:
+                tqdm.write(f'\033[33mINFO:\033[0m Forge does not support `cond` and `uncond` modes')
+        if mode == "cond":
+            params.sigma[0] *= 1 - multiplier
+        elif mode == "uncond":
+            params.sigma[1] *= 1 + multiplier
         else:
-            params.sigma *= 1 - self.schedule[idx] * .1 * self.cfg_scale
-
+            params.sigma *= 1 - multiplier * self.cfg_scale
+    
     def make_schedule(self, steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth):
         start = min(start, end)
         mid = start + bias * (end - start)
