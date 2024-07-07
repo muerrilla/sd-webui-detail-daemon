@@ -124,6 +124,7 @@ class Script(scripts.Script):
             self.schedule = self.make_schedule(actual_steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
             self.mode = mode
             self.cfg_scale = p.cfg_scale
+            self.batch_size = p.batch_size
             on_cfg_denoiser(self.denoiser_callback)              
             self.callback_added = True 
             p.extra_generation_params['Detail Daemon'] = f'mode:{mode},amount:{amount},st:{start},ed:{end},bias:{bias},exp:{exponent},st_offset:{start_offset},ed_offset:{end_offset},fade:{fade},smooth:{1 if smooth else 0}'
@@ -160,9 +161,11 @@ class Script(scripts.Script):
             if idx == 0:
                 tqdm.write(f'\033[33mWARNING:\033[0m Forge does not support `cond` and `uncond` modes, using `both` instead')
         if mode == "cond":
-            params.sigma[0] *= 1 - multiplier
+            for i in range(self.batch_size):
+                params.sigma[i] *= 1 - multiplier
         elif mode == "uncond":
-            params.sigma[1] *= 1 + multiplier
+            for i in range(self.batch_size):
+                params.sigma[self.batch_size + i] *= 1 + multiplier
         else:
             params.sigma *= 1 - multiplier * self.cfg_scale
     
