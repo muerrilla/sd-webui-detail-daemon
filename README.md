@@ -51,30 +51,32 @@ Which steps correspond to which exact frequency range depends on the model you'r
 I'll soon provide specific examples addressing different scenarios and some of the techniques I've come up with. (note to self: move these to the wiki page)
 
 ## Installation
-Open SD WebUI > Go to Extensions tab > Go to Install from URL > Paste this repo's URL into the first field > Click Install
+Open SD WebUI > Go to Extensions tab > Go to Available tab > Click Load from: > Find Detail Daemon > Click Install
+
+Or Go to Install from URL tab > Paste this repo's URL into the first field > Click Install
 
 Or go to your WebUI folder and manually clone this repo into your extensions folder:
 
 `git clone "https://github.com/muerrilla/sd-webui-detail-daemon" extensions/sd-webui-detail-daemon`
 
-Note: You might need to shut down SD WebUI and start it again for the dependencies to install.
-
 ## Getting Started
 After installation you can find the extension in your txt2img and img2img tabs. 
+![2024-07-08 01_43_21-011366](https://github.com/muerrilla/sd-webui-detail-daemon/assets/48160881/045574cb-465c-4991-83c4-d02f803a330b)
+### Sliders:
+The sliders (and that one checkbox) set the amount of adjustment (positive values → add detail, negative values → remove detail) and the sampling steps during which it is applied (i.e. the schedule). So the X axis of the graph is your sampling steps, normalized to the (0,1) range, and the Y axis is the amount of adjustment. The rest is pretty self-explanatory I think. Just drag things and look at the graph for changes.
+### Numbers:
+The three number inputs at the buttom are provided because sometimes the slider max/mins are too limiting.
+### Modes:
+The `cond` and `uncond` modes affect only their respective latents, while `both` affects both (duh!). The `cond` and `uncond` modes are less intense and also allow changes to be applied at earlier steps without diverging too far from the original generation, since the other latent stays intact. 
 
-![2024-05-10 23_28_38-011344](https://github.com/muerrilla/sd-webui-detail-daemon/assets/48160881/752c9fc6-fad7-40e2-824a-62d9fee12fae)
+There's also a minor twist: in the `both` mode if `detail amount` is positive both cond and uncond latents become more detailed. So the more detailed cond latent will try to push the generation towards more detail, while the more detailed uncond latent will try to push towards less detail. This causes more new features/artifacts to pop into the image in this mode.
 
-These controls allow you to set the amount of adjustment (positive values → more detail, negative values → less detail) and the sampling steps during which it is applied. So the X axis of the graph is your sampling steps, normalized to the (0,1) range, and the Y axis is the amount of adjustment, and all the sliders do is affect the shape of your schedule.
-
-I'll write up some proper docs on how best to set the parameters, as soon as possible.
-
-For now you gotta play around with the sliders and figure out how the shape of the schedule affects the image. I suggest you set your live preview update period to every frame, or every other frame, so you could see clearly what's going on at every step of the sampling process and how Detail Daemon affects it, till you get a good grasp of how this thing works.
-
+### Tips:
+I'll write up some proper docs on how best to set the parameters, as soon as possible. For now you gotta play around with the sliders and figure out how the shape of the schedule affects the image. I suggest you set your live preview update period to every frame, or every other frame, so you could see clearly what's going on at every step of the sampling process and how Detail Daemon affects it, till you get a good grasp of how this thing works.
 
 ## Notes:
-- I haven't tested it with composable diffusion yet. Don't be surprised if it acts weird.
-- It's probably impossible to use or very hard to control with few-step models (Turbo, Lightning, etc.).
-- It works with forge.
+- Doesn't support Compositional Diffusion (i.e. the AND syntax) properly. Specially if you have a batch size > 1 or negative weights in your prompts, and the mode is set to `cond` or `uncond`.
+- It's probably impossible to use or very hard to control with few-step models (Turbo, Lightning, etc.). Edit: It's managable.
+- It works with Forge (`cond` and `uncond` modes are not supported).
 - It's not the same as AlignYourSteps, FreeU, etc.
 - It is similar (in what it sets out to do, not in how it does it) to the [ReSharpen Extension](https://github.com/Haoming02/sd-webui-resharpen) by Haoming.
-- This is WIP and subject to change.
