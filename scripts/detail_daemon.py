@@ -120,7 +120,7 @@ class Script(scripts.Script):
         smooth = getattr(p, "DD_smooth", smooth)
 
         if enabled:
-            if p.sampler_name == "DPM adaptive":
+            if p.sampler_name in ["DPM adaptive", "HeunPP2"]:
                 tqdm.write(f'\033[33mWARNING:\033[0m Detail Daemon does not work with {p.sampler_name}')
                 return
             
