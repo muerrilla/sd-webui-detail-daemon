@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import modules.scripts as scripts
-from modules.script_callbacks import CFGDenoiserParams, on_cfg_denoiser, remove_callbacks_for_function, on_infotext_pasted
+from modules.script_callbacks import on_cfg_denoiser, remove_callbacks_for_function, on_infotext_pasted
 from modules.ui_components import InputAccordion
 
 
@@ -165,7 +165,7 @@ class Script(scripts.Script):
         if enabled:
             tqdm.write(f'\033[33mINFO:\033[0m Detail Daemon does not work during Hires Fix')
         
-    def denoiser_callback(self, params: CFGDenoiserParams): 
+    def denoiser_callback(self, params): 
         if self.is_hires:
             return
         
