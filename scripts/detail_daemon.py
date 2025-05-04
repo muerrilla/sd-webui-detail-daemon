@@ -145,7 +145,7 @@ class Script(scripts.Script):
         else:
             if hasattr(self, 'callback_added'):
                 remove_callbacks_for_function(self.denoiser_callback)
-                delattr(self, 'callback_added')
+                delattr(self, 'callback_added') 
                 self.schedule = None
                 # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')  
 
