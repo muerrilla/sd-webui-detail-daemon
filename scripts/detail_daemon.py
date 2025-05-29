@@ -170,10 +170,9 @@ class Script(scripts.Script):
             return
         
         if self.schedule is None:
-            self.schedule = self.make_schedule(
-                max(params.total_sampling_steps, params.denoiser.total_steps),
-                **self.schedule_params,
-            )
+            total_steps = max(params.total_sampling_steps, params.denoiser.total_steps)
+            corrected_step_count = total_steps - max(total_steps // params.denoiser.steps - 1, 0)
+            self.schedule = self.make_schedule(corrected_step_count, **self.schedule_params)
 
         idx = max(params.sampling_step, params.denoiser.step)
         multiplier = self.schedule[idx] * .1
