@@ -168,13 +168,13 @@ class Script(scripts.Script):
     def denoiser_callback(self, params): 
         if self.is_hires:
             return
-        
+        step = max(params.sampling_step, params.denoiser.step)
+        total_steps = max(params.total_sampling_steps, params.denoiser.total_steps)
+        corrected_step_count = total_steps - max(total_steps // params.denoiser.steps - 1, 0)
         if self.schedule is None:
-            total_steps = max(params.total_sampling_steps, params.denoiser.total_steps)
-            corrected_step_count = total_steps - max(total_steps // params.denoiser.steps - 1, 0)
             self.schedule = self.make_schedule(corrected_step_count, **self.schedule_params)
 
-        idx = max(params.sampling_step, params.denoiser.step)
+        idx = min(step, corrected_step_count - 1)
         multiplier = self.schedule[idx] * .1
         mode = self.mode 
         if params.sigma.size(0) == 1 and mode != "both":
