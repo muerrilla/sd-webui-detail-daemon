@@ -28,6 +28,11 @@ on_infotext_pasted(parse_infotext)
 
 class Script(scripts.Script):
 
+    def __init__(self):
+        super().__init__()
+        self.schedule_params: dict[str, float] = None
+        self.schedule = None
+
     def title(self):
         return "Detail Daemon"
 
@@ -115,13 +120,21 @@ class Script(scripts.Script):
         smooth = getattr(p, "DD_smooth", smooth)
 
         if enabled:
-            if p.sampler_name == "DPM adaptive":
+            if p.sampler_name in ["DPM adaptive", "HeunPP2"]:
                 tqdm.write(f'\033[33mWARNING:\033[0m Detail Daemon does not work with {p.sampler_name}')
                 return
-            # Restart can be handled better, later maybe    
             
-            actual_steps = (p.steps * 2 - 1) if p.sampler_name in ['DPM++ SDE', 'DPM++ 2S a', 'Heun', 'DPM2', 'DPM2 a', 'Restart'] else p.steps        
-            self.schedule = self.make_schedule(actual_steps, start, end, bias, amount, exponent, start_offset, end_offset, fade, smooth)
+            self.schedule_params = {
+                "start": start,
+                "end": end,
+                "bias": bias,
+                "amount": amount,
+                "exponent": exponent,
+                "start_offset": start_offset,
+                "end_offset": end_offset,
+                "fade": fade,
+                "smooth": smooth
+            }
             self.mode = mode
             self.cfg_scale = p.cfg_scale
             self.batch_size = p.batch_size
@@ -133,6 +146,7 @@ class Script(scripts.Script):
             if hasattr(self, 'callback_added'):
                 remove_callbacks_for_function(self.denoiser_callback)
                 delattr(self, 'callback_added')
+                self.schedule = None
                 # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')  
 
     def before_process_batch(self, p, *args, **kwargs):
@@ -141,7 +155,8 @@ class Script(scripts.Script):
     def postprocess(self, p, processed, *args):
         if hasattr(self, 'callback_added'):
             remove_callbacks_for_function(self.denoiser_callback)
-            delattr(self, 'callback_added') 
+            delattr(self, 'callback_added')
+            self.schedule = None
             # tqdm.write('\033[90mINFO: Detail Daemon callback removed\033[0m')
 
     def before_hr(self, p, *args):
@@ -153,10 +168,16 @@ class Script(scripts.Script):
     def denoiser_callback(self, params): 
         if self.is_hires:
             return
-        idx = params.denoiser.step   
+        
+        if self.schedule is None:
+            total_steps = max(params.total_sampling_steps, params.denoiser.total_steps)
+            corrected_step_count = total_steps - max(total_steps // params.denoiser.steps - 1, 0)
+            self.schedule = self.make_schedule(corrected_step_count, **self.schedule_params)
+
+        idx = max(params.sampling_step, params.denoiser.step)
         multiplier = self.schedule[idx] * .1
         mode = self.mode 
-        if params.sigma.size(0) == 1:
+        if params.sigma.size(0) == 1 and mode != "both":
             mode = "both"
             if idx == 0:
                 tqdm.write(f'\033[33mWARNING:\033[0m Forge does not support `cond` and `uncond` modes, using `both` instead')
