@@ -1,3 +1,34 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=muerrilla&project=sd-webui-detail-daemon&lang=id">Bahasa Indonesia</a>
+      </div>
+    </div>
+  </details>
+</div>
+
 # Detail Daemon
 This is an extension for [Stable Diffusion Web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui), which allows users to adjust the amount of detail/smoothness in an image, during the sampling steps. 
 
