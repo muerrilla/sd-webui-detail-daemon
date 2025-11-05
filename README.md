@@ -1,7 +1,10 @@
 # Detail Daemon
-This is an extension for [Stable Diffusion Web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui), which allows users to adjust the amount of detail/smoothness in an image, during the sampling steps. 
+This is an extension for [Stable Diffusion Web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui), [Forge](https://github.com/lllyasviel/stable-diffusion-webui-forge), and [Forge Neo](https://github.com/Haoming02/sd-webui-forge-classic/tree/neo) which allows users to adjust the amount of detail/smoothness in an image, during the sampling steps. 
 
 It uses no LORAs, ControlNets, etc., and as a result its performance is not biased towards any certain style and it introduces no new stylistic or semantic features of its own into the generation. This also means that it can work with any model and on any type of image.
+Works with SD 1.5, SDXL, Flux, Qwenm etc.
+
+**Update 2025-11-05:** Added multiple daemons and hi-res pass.
 
 <sub>*Model: SSD-1B*<br></sub>
 ![a close up portrait of a cyberpunk knight-1Lv-0](https://github.com/muerrilla/sd-webui-detail-daemon/assets/48160881/561c33d9-9a5d-4cfc-bee8-de9126b280c1)
@@ -61,7 +64,7 @@ Or go to your WebUI folder and manually clone this repo into your extensions fol
 
 ## Getting Started
 After installation you can find the extension in your txt2img and img2img tabs. 
-![2024-07-08 01_43_21-011366](https://github.com/muerrilla/sd-webui-detail-daemon/assets/48160881/045574cb-465c-4991-83c4-d02f803a330b)
+![2025-11-05 15_35_36-011689](https://github.com/user-attachments/assets/ada23a0a-6867-4201-a16c-18d76b3417a1)
 ### Sliders:
 The sliders (and that one checkbox) set the amount of adjustment (positive values → add detail, negative values → remove detail) and the sampling steps during which it is applied (i.e. the schedule). So the X axis of the graph is your sampling steps, normalized to the (0,1) range, and the Y axis is the amount of adjustment. The rest is pretty self-explanatory I think. Just drag things and look at the graph for changes.
 ### Numbers:
