@@ -1,20 +1,78 @@
-.detail-daemon-more-accordion {
-    margin-top: 1em !important;
+.detail-daemon-thumb-group{
+    padding: 0 0 0.25em 0 !important;
+}
+.detail-daemon-thumb {
+    min-width: min(20px, 100%) !important;
+}
+.detail-daemon-thumb img {
+    max-height: 100px;
 }
 
-.detail-daemon-mode {
-	margin-left: 3em !important;
-	width: 75% !important;
+.detail-daemon-tab-group{
+    padding: 0 !important;
+}
+.detail-daemon-tab-group .tab-nav {
+    flex-wrap: nowrap;
+}
+.detail-daemon-tab-group .tab-nav button {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    width: 0;
+    text-wrap: nowrap;
+    padding: 0 0 8px 0;
+    overflow: hidden;
+    font-weight: bolder;
+}
+.detail-daemon-tab-group .tab-nav button:hover {
+    background: #ffffff0a !important;
+    /*border-color: var(--border-color) !important;*/
 }
 
+.detail-daemon-hires {
+    margin-top: 0 !important;
+}
+.detail-daemon-active {
+    margin-top: 0 !important;
+}
 .detail-daemon-smooth {
+	margin-top: 0 !important;
+	margin-bottom: 0.75em !important;
 	margin-left: 3em !important;
 }
-
 .detail-daemon-vis {
 	margin: auto !important;
 }
+.detail-daemon-params {
+	padding-top:  .75em !important;
+}
 
-.detail-daemon-help {
-	margin: auto 1.5em !important;
+.detail-daemon-more-accordion {
+    margin-top: 0.75em !important;
+}
+.detail-daemon-mode span{
+	margin-bottom: 0 !important;
+}
+
+/*--------------------EXPERIMENTAL------------------------*/
+
+.detail-daemon-thumb img {
+    /*max-height: 84px;*/
+    max-height: 64px;
+}
+.detail-daemon-thumb {
+    padding: 8px;
+}
+.detail-daemon-thumb-group {
+	position: absolute !important;
+    z-index: 4 !important;
+}
+.detail-daemon-tab-group .tab-nav button {
+    /*height: 100px;*/
+    height: 85px;
+    font-size: 1.35em;
+    z-index: 8 !important;
+}
+.detail-daemon-tab-group .tab-nav .selected {
+    z-index: 2 !important;
 }
